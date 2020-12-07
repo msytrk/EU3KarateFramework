@@ -2,6 +2,7 @@ Feature:  Parameters examples
   Background:
     * def baseUrl = 'https://api.exchangeratesapi.io'
     * def spartanUrl = 'http://52.55.102.92:8000'
+    * def hrUrl = 'http://52.55.102.92:1000/ords/hr'
   Scenario: path parameters
     Given url baseUrl
     And path "latest"
@@ -18,7 +19,6 @@ Feature:  Parameters examples
     When method get
     Then status 200
     And print response
-  @wip
   Scenario: get ones spartan only
     Given url spartanUrl
     And path "api/spartans"
@@ -27,7 +27,6 @@ Feature:  Parameters examples
     Then status 200
     And print response
     And match response == { "gender": "Female", "phone": 3312820936, "name": "Lorenza", "id": 10}
-  @wip
   Scenario: get ones spartan only
     * def expectedSpartan =
     """
@@ -46,7 +45,6 @@ Feature:  Parameters examples
     And print response
     And match response == expectedSpartan
 
-  @wip
   Scenario:  query parameters
     Given url spartanUrl
     And path "api/spartans/search"
@@ -64,4 +62,14 @@ Feature:  Parameters examples
     And match response.content[0].name == 'Jinny'
       #verify each content phone is number
     And match each response.content[*].phone == '#number'
+  Scenario: hr regions example
+    Given url hrUrl
+    And path 'regions'
+    When method GET
+    Then status 200
+    And match response.limit == 25
+    And match each response.items[*].region_id == '#number'
+    And def region_ids = karate.jsonPath(response,"$..region_id")
+    And print region_ids
+    And match response.items[0].links[0].href contains "http"
 
